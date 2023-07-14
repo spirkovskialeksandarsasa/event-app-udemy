@@ -1,31 +1,37 @@
-import { getAllEvents } from '@/dummy-data'
-import React from 'react'
-import EventList from '@/components/EventList'
-import EventSearch from '@/components/EventSearch';
-import { getFilteredEvents } from '@/dummy-data';
-import { useRouter } from 'next/router'
- 
-function EventsPage() {
+import { getAllEvents } from "@/helpers/api-util";
+import React from "react";
+import EventList from "@/components/EventList";
+import EventSearch from "@/components/EventSearch";
+import { getFilteredEvents } from "@/dummy-data";
+import { useRouter } from "next/router";
 
-    const allEvents = getAllEvents();
-    const hideButton = false;
-    const router = useRouter();
+function EventsPage(props) {
+  const hideButton = false;
+  const router = useRouter();
 
-    function findEventsHandler(year, month){
+  const { allEvents } = props.events;
 
-      const fullPath = `/events/${year}/${month}`;
+  function findEventsHandler(year, month) {
+    const fullPath = `/events/${year}/${month}`;
 
-      router.push(fullPath);
-
-
-    }
+    router.push(fullPath);
+  }
   return (
     <div>
-<EventSearch onSearch={findEventsHandler}/>
-<EventList hideMyButton={hideButton} items={allEvents}/>
-
+      <EventSearch onSearch={findEventsHandler} />
+      {allEvents && <EventList hideMyButton={hideButton} items={allEvents} />}
     </div>
-  )
+  );
 }
 
-export default EventsPage
+export async function getStaticProps() {
+  const events = await getAllEvents();
+  return {
+    props: {
+      events: { allEvents: events },
+    },
+    revalidate: 50
+  };
+}
+
+export default EventsPage;
